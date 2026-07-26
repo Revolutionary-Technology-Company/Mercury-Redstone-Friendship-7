@@ -5,16 +5,20 @@ from sensors import ModernVectorEngine
 from jettison import NoseTowerJettisonController
 from retro_seq import RetroDescentSequenceController
 from comm_relay import CommunicationsRelayController
+from parachute import ParachuteRecoveryController
+from boost_insert import BoostInsertionController
 
-class MercuryMasterSystemIntegrator:
+class MercuryComprehensiveIntegrator:
     def __init__(self):
-        # Initialize the global panel interface modules
+        # Master hardware interface maps
         self.safety_timer = HighRiskSafetyOrchestrator()
         self.evasion_unit = RetroSquibEvasionController()
         self.vector_engine = ModernVectorEngine()
         self.jett_unit = NoseTowerJettisonController()
         self.descent_unit = RetroDescentSequenceController()
         self.comms_unit = CommunicationsRelayController()
+        self.recovery_unit = ParachuteRecoveryController()
+        self.boost_unit = BoostInsertionController()
         
         self.system_active = True
         self.escape_sequence_completed = False
@@ -59,6 +63,18 @@ class MercuryMasterSystemIntegrator:
             self.vector_engine.process_landing_seq_toggle(pilot_actions["LANDING_SEQ"])
         if "TM_256" in pilot_actions:
             self.comms_unit.configure_frequency_divider(pilot_actions["TM_256"])
+        if "PARA_CNTL" in pilot_actions:
+            self.recovery_unit.set_parachute_control(pilot_actions["PARA_CNTL"])
+
+        # 3. Row 3 & 4 Processing: Descent Staging, Booster Cuts, and Recovery Signals
+        if "BOOST_PWR" in pilot_actions:
+            self.boost_unit.set_boost_pwr_rail(pilot_actions["BOOST_PWR"])
+        if "BOOST_INS_1" in pilot_actions:
+            self.boost_unit.evaluate_insertion_toggles(1, pilot_actions["BOOST_INS_1"])
+        if "BOOST_INS_2" in pilot_actions:
+            self.boost_unit.evaluate_insertion_toggles(2, pilot_actions["BOOST_INS_2"])
+        if "ATT_IND" in pilot_actions:
+            self.recovery_unit.set_attitude_indicator_source(pilot_actions["ATT_IND"])
 
         # 4. Process Row 3 & 4: Descent Sequencing & Physical Jettisons
         if "RETRO_PWR" in pilot_actions:
@@ -103,7 +119,19 @@ class MercuryMasterSystemIntegrator:
 
 # Simulation execution pipeline demonstrating different operational states
 if __name__ == "__main__":
-    master_loop = MercurySystemIntegrator()
+    master_loop = MercuryComprehensiveIntegrator()
+    
+    # Run full end-to-end telemetry check simulating a complete flight envelope loop
+    print("\n--- PHASE 1: ORBITAL INSERTION VALIDATION ---")
+    master_loop.process_global_tick(pilot_actions={"BOOST_PWR": "UP", "BOOST_INS_1": "UP", "BOOST_INS_2": "UP"})
+    
+    print("\n--- PHASE 2: THREAT ALERT LOGIC G-LIMIT BURN ---")
+    master_loop.process_global_tick(pilot_actions={"ELECT_TIMER": "ON"})
+    master_loop.process_global_tick(simulate_blast=True)
+    master_loop.process_global_tick(pilot_actions={"TOWER_JETT": "UP"})
+    
+    print("\n--- PHASE 3: LOW-ALTITUDE STABILIZATION AND DESCENT ---")
+    master_loop.process_global_tick(pilot_actions={"PARA_CNTL": "UP", "ATT_IND": "DOWN"})
     
     # Simulate a comprehensive, nominal mission-to-descent timeline update
     master_loop.process_global_tick(pilot_actions={"AUDIO_UHF": "1", "TONE_VOX": "UP", "ELECT_TIMER": "ON"})
