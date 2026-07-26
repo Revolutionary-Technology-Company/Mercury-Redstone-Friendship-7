@@ -1,14 +1,14 @@
 import sys
 from decimal import Decimal, getcontext
 
-# Enforce strict 36-decimal digit precision across the math unit
+"""Enforce strict 36-decimal digit precision across the math unit"""
 getcontext().prec = 36
 
 class RightPanelSwitchboard:
     def __init__(self):
         print("[INIT] Initializing 36-Digit High-Precision Right Panel Array...")
         
-        # 16-state hexadecimal thresholds mapped to exact 36-digit Decimals (Co-Pilot/Animal Cabin)
+       """16-state hexadecimal thresholds mapped to exact 36-digit Decimals (Co-Pilot/Animal Cabin)"""
         self.pins = {
             "R_ASCS_MONITOR":    Decimal("0.062500000000000000000000000000000000"),
             "R_MANUAL_OVER":     Decimal("0.125000000000000000000000000000000000"),
@@ -42,7 +42,7 @@ class RightPanelSwitchboard:
                 resolved_pin = pin_name
                 break
                 
-        # Calculate dynamic right-side status indicators
+       """Calculate dynamic right-side status indicators"""
         drift_factor = target_input * Decimal("0.555555555555555555555555555555555555")
         w_high, w_mid, w_low = self.stack_into_univac_words(drift_factor)
         
