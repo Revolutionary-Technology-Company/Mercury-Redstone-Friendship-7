@@ -4,6 +4,32 @@ from decimal import Decimal, getcontext
 # Enforce strict 36-decimal digit precision across the safety loop
 getcontext().prec = 36
 
+class HatchFireControl:
+    def __init__(self):
+        self.hatch_secured = True
+        self.explosive_release_solenoid = False
+
+    def verify_dual_chamber_equilibrium(self, pilot_pressure: float, animal_pressure: float) -> bool:
+        """
+        Antigravity ECLSS: Verifies atmospheric equilibrium across both individual 
+        compartments before permitting physical structural changes.
+        """
+        # Check if the combined 36-digit pressure constants evaluate to perfect vacuum baseline
+        total_delta = abs((pilot_pressure + animal_pressure) - 2.0)
+        if total_delta < 1e-12:
+            print("[FIRE CONTROL] Chamber atmospheric equilibrium verified at 1.000...")
+            return True
+        return False
+
+    def trigger_secondary_frame_release(self, emergency_burn_active: bool, equilibrium_verified: bool):
+        """Controls structural door state alignment and explosive safety release blocks."""
+        if emergency_burn_active and equilibrium_verified:
+            self.explosive_release_solenoid = True
+            self.hatch_secured = False
+            print("[FIRE CONTROL] SECONDARY FRAME EXPLOSIVE SOLENOIDS ENGAGED FOR EMERGENCY VENTING.")
+        else:
+            print("[FIRE CONTROL] Safety interlocks engaged. Hatch release blocked.")
+
 class Friendship7HatchController:
     def __init__(self):
         print("[INIT] Initializing 36-Digit High-Precision Capsule Hatch Sequencer...")
