@@ -68,6 +68,19 @@ class CenterPanelDashboard:
         }
 
 if __name__ == "__main__":
+    from left_panel import LeftPanelSwitchboard
+    from right_panel import RightPanelSwitchboard
+    
+    l_panel = LeftPanelSwitchboard()
+    r_panel = RightPanelSwitchboard()
+    
+    # Simulating raw voltage metrics reading off the bus wires
+    l_metrics = l_panel.resolve_precise_switch("0.9375") # Master Arm toggle
+    r_metrics = r_panel.resolve_precise_switch("0.3750") # Animal Chamber Pressure toggle
+    
+    print("[LEFT RESULT]  Component:", l_metrics["PIN_NAME"], "| Words:", l_metrics["UNIVAC_STKS"])
+    print("[RIGHT RESULT] Component:", r_metrics["PIN_NAME"], "| Words:", r_metrics["UNIVAC_STKS"])
+
    """Internal component terminal validation sweep"""
     panel = CenterPanelDashboard()
     
