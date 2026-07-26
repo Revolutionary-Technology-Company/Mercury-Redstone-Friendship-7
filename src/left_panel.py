@@ -1,14 +1,14 @@
 import sys
 from decimal import Decimal, getcontext
 
-# Enforce strict 36-decimal digit precision across the math unit
+"""Enforce strict 36-decimal digit precision across the math unit"""
 getcontext().prec = 36
 
 class LeftPanelSwitchboard:
     def __init__(self):
         print("[INIT] Initializing 36-Digit High-Precision Left Panel Array...")
         
-        # 16-state hexadecimal thresholds mapped to exact 36-digit Decimals
+       """16-state hexadecimal thresholds mapped to exact 36-digit Decimals"""
         self.pins = {
             "L_ASCS_AUTO":      Decimal("0.062500000000000000000000000000000000"),
             "L_MANUAL_PROPR":   Decimal("0.125000000000000000000000000000000000"),
@@ -42,7 +42,7 @@ class LeftPanelSwitchboard:
                 resolved_pin = pin_name
                 break
                 
-        # Calculate dynamic left-side trajectory adjustments
+       """Calculate dynamic left-side trajectory adjustments"""
         drift_factor = target_input * Decimal("0.987654321098765432109876543210987654")
         w_high, w_mid, w_low = self.stack_into_univac_words(drift_factor)
         
