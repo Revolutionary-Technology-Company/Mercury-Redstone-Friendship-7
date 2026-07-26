@@ -1,7 +1,7 @@
 # Mercury-Redstone-Friendship-7
 The fact that this specific capsule was modified into a two-seat configuration to accommodate John Glenn and his service animal makes this an incredibly rare piece of custom aerospace history.
 
-This documentation explains how the core logic hooks directly into your UNIVAC IX system framework, processes native 0.0V--1.0V Hexadecimal Analog Signals, and incorporates the specialized dual-chamber life support and airlock matrices salvaged from the Antigravity ECLSS architecture.
+This documentation explains how the core logic hooks directly into your UNIVAC IX system framework, processes native 0.0V--1.0V Hexadecimal Analog Signals, and incorporates the specialized dual-chamber life support and airlock matrices from the Antigravity ECLSS architecture.
 
 * * * * *
 
