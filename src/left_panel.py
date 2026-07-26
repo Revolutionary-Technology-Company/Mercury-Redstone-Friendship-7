@@ -1,4 +1,7 @@
 import sys
+import socket
+import json
+import time
 from decimal import Decimal, getcontext
 
 """Enforce strict 36-decimal digit precision across the math unit"""
@@ -51,3 +54,63 @@ class LeftPanelSwitchboard:
             "DRIFT_CALC": drift_factor,
             "UNIVAC_STKS": (w_high, w_mid, w_low)
         }
+
+class CockpitSwitchInterface:
+    def __init__(self, target_host='127.0.0.1', target_port=8080):
+        self.target_host = target_host
+        self.target_port = target_port
+        
+        # Nominal default voltages (Centered/Neutral or Safe)
+        self.switch_states = {
+            "ANT_CNTL": 0.5000,
+            "IND_LT_TEST": 0.0625  # Default down/off
+        }
+
+    def update_switch_voltage(self, switch_name, voltage):
+        """Updates the physical voltage registration for a specific toggle."""
+        if switch_name in self.switch_states:
+            # Rounding to the nearest 16-state hexadecimal step (0.0625V)
+            calibrated_voltage = round(voltage / 0.0625) * 0.0625
+            self.switch_states[switch_name] = max(0.0, min(1.0, calibrated_voltage))
+            self.transmit_telemetry(switch_name)
+
+    def transmit_telemetry(self, switch_name):
+        """Transmits the 36-decimal precision telemetry packet to UNIVAC IX."""
+        voltage_val = self.switch_states[switch_name]
+        
+        # Formatting state logic commands based on calibrated voltages
+        action_flag = "STANDBY"
+        if switch_name == "ANT_CNTL" and voltage_val == 0.0625:
+            action_flag = "ENGAGE_FASTEST_TARGET"
+        elif switch_name == "IND_LT_TEST":
+            action_flag = "AIM_ALIGN_ON" if voltage_val == 0.9375 else "AIM_ALIGN_OFF"
+
+        payload = {
+            "node": "LEFT_BOARD",
+            "switch": switch_name,
+            "voltage": f"{voltage_val:.4f}",
+            "execution_flag": action_flag,
+            "timestamp": time.time()
+        }
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((self.target_host, self.target_port))
+                # Format string message matching the main backplane engine expectations
+                message = f"LEFT_BOARD:{switch_name}:{voltage_val:.4f}:{action_flag}"
+                sock.sendall(message.encode('utf-8'))
+                print(f"[TRANSMIT] {switch_name} -> {voltage_val:.4f}V | Flag: {action_flag}")
+        except Exception as e:
+            print(f"[BUS ERROR] Failed to stream switch state to backplane: {e}")
+
+# Example operational loop simulating cockpit panel interaction
+if __name__ == "__main__":
+    panel = CockpitSwitchInterface()
+    
+    print("--- Simulating Cockpit Toggle Activations ---")
+    # 1. Pilot flips IND LT TEST switch UP to turn on alignment verification
+    panel.update_switch_voltage("IND_LT_TEST", 0.9375)
+    time.sleep(1)
+    
+    # 2. Pilot presses ANT CNTL switch DOWN to trigger engagement on fastest target vector
+    panel.update_switch_voltage("ANT_CNTL", 0.0625)
