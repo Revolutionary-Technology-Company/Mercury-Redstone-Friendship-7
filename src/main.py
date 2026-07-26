@@ -67,6 +67,10 @@ class CenterPanelDashboard:
             "UNIVAC_STKS": (w_high, w_mid, w_low)
         }
 
+    def resolve_precise_switch(self, raw_analog_voltage):
+        # ... (Match against pins, calculate drift and UNIVAC stacks)
+        pass
+        
 if __name__ == "__main__":
     from left_panel import LeftPanelSwitchboard
     from right_panel import RightPanelSwitchboard
