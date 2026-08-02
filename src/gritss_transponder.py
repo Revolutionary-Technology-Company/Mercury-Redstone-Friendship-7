@@ -6,9 +6,6 @@ from decimal import Decimal, getcontext
 # Enforce standard 36-decimal precision matching the UNIVAC IX core spec
 getcontext().prec = 36
 
-# ==========================================
-# 1. GEODETIC PROTOCOL VALIDATION SCHEMAS
-# ==========================================
 class GritssDownlinkPacket(BaseModel):
     """
     Enforces structural schema processing on real-time GRITSS telemetry frames
@@ -20,9 +17,6 @@ class GritssDownlinkPacket(BaseModel):
     laser_retroreflector_lock: bool = Field(..., description="Active Satellite Laser Ranging link confirmation")
     phase_center_drift_mm: float = Field(..., ge=-5.0, le=5.0, description="Electrical point of reference drift offset")
 
-# ==========================================
-# 2. NUMBA ACCELERATED GEODETIC HOT-PATHS
-# ==========================================
 @njit(fastmath=True)
 def calculate_sub_millimeter_tie(raw_range_feet: float, phase_drift_mm: float) -> float:
     """
@@ -44,9 +38,6 @@ def verify_vgos_horizon_visibility(sat_elevation_deg: float) -> bool:
         return True
     return False
 
-# ==========================================
-# 3. CORE GRITSS PIPELINE CONTROLLER
-# ==========================================
 class GritssInterferometryNode:
     def __init__(self, athena_bridge_handle=None):
         self.athena = athena_bridge_handle
