@@ -1,0 +1,32 @@
+{
+  "MERCURY_FRIENDSHIP_7_SOLO": {
+    "asset_id": "MR-FR7-TWO-SEAT-CAPSULE",
+    "description": "John Glenn Modified Two-Seat Configuration with Dedicated Service Animal Bay",
+    "dry_mass_lbs": 2987.000000000000000000000000000000000000,
+    "max_allowable_g_load": 11.500000000000000000000000000000000000,
+    "aerodynamic_surface_area_sqft": 42.600000000000000000000000000000000000,
+    "ballistic_coefficient_beta": 0.145000000000000000000000000000000000,
+    "eclss_chamber_count": 2,
+    "voltage_bus_step_v": 0.062500000000000000000000000000000000
+  },
+  "MERCURY_ATLAS_BOOSTER_SOLO": {
+    "asset_id": "MA-105-D-CORE-BOOSTER",
+    "description": "Convair SM-65 Liquid Propellant Sustainer and Booster Multi-Engine Airframe",
+    "dry_mass_lbs": 11600.000000000000000000000000000000000000,
+    "max_allowable_g_load": 6.500000000000000000000000000000000000,
+    "aerodynamic_surface_area_sqft": 78.540000000000000000000000000000000000,
+    "ballistic_coefficient_beta": 0.284000000000000000000000000000000000,
+    "eclss_chamber_count": 0,
+    "voltage_bus_step_v": 0.000000000000000000000000000000000000
+  },
+  "MERCURY_ATLAS_FRIENDSHIP_7_STACK": {
+    "asset_id": "MA6-GLENN-COMBINED-FLIGHT-STACK",
+    "description": "Fully Integrated Flight Stack: Two-Seat Capsule Mounted to Active Atlas Sustainer",
+    "dry_mass_lbs": 14587.000000000000000000000000000000000000,
+    "max_allowable_g_load": 6.000000000000000000000000000000000000,
+    "aerodynamic_surface_area_sqft": 121.140000000000000000000000000000000000,
+    "ballistic_coefficient_beta": 0.312000000000000000000000000000000000,
+    "eclss_chamber_count": 2,
+    "voltage_bus_step_v": 0.062500000000000000000000000000000000
+  }
+}
