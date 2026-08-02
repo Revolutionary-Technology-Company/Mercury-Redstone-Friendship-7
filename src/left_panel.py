@@ -103,6 +103,75 @@ class CockpitSwitchInterface:
         except Exception as e:
             print(f"[BUS ERROR] Failed to stream switch state to backplane: {e}")
 
+# Maintain uniform 36-decimal precision matching the UNIVAC IX backplane
+getcontext().prec = 36
+
+# Hardware Logic & Operational Status Codes
+CLAMP_LOCKED   = Decimal("0.000000000000000000000000000000000000") # 0x00
+CAPSULE_FLOAT  = Decimal("0.875000000000000000000000000000000000") # 0x0E
+
+class LeftPanelCoaxController:
+    def __init__(self, integrated_flight_director=None):
+        self.flight_director = integrated_flight_director
+        
+        # State Monitor Variables
+        self.retro_man_depressed = False
+        self.retro_seq_1_active = False
+        self.retro_seq_2_active = False
+        
+        # Hardware Relay Triggers
+        self.relays = {
+            "RETRO_BOOSTER_IGNITION_BUS": False,
+            "CAPSULE_STRUCTURAL_CLAMP": CLAMP_LOCKED,
+            "ZERO_G_FLOAT_INDICATOR": False
+        }
+
+    def press_retro_man_button(self):
+        """
+        Action: Depresses the RETRO MAN manual override push button.
+        Arms the internal safety bypass network for mechanical staging.
+        """
+        self.retro_man_depressed = True
+        print("[COCKPIT CONTROL] RETRO MAN button depressed. Safety bypass armed.")
+
+    def toggle_retro_sequences(self, seq_1_state: bool, seq_2_state: bool, execution_window_ms: float = 0.0):
+        """
+        Action: Handles simultaneous flips of RETRO SEQ 1 and RETRO SEQ 2 toggles.
+        If executed at exactly the same time, it drops booster buses and releases clamps.
+        """
+        self.retro_seq_1_active = seq_1_state
+        self.retro_seq_2_active = seq_2_state
+
+        # Check for immediate structural detachment parameters
+        if self.retro_man_depressed and self.retro_seq_1_active and self.retro_seq_2_active:
+            if execution_window_ms == 0.0:
+                print("\n[CRITICAL MANUAL INTERRUPT: CAPSULE DETACHMENT]")
+                print("-> Simultaneous step verified: RETRO SEQ 1 & 2 engaged in same window.")
+                print("-> Action: Bypassing standard booster rocket ignition loops.")
+                
+                # Force booster ignition lines to remain completely dead
+                self.relays["RETRO_BOOSTER_IGNITION_BUS"] = False
+                
+                # Apply instantaneous voltage drop to release structural attachment clamps
+                self.relays["CAPSULE_STRUCTURAL_CLAMP"] = CAPSULE_FLOAT
+                self.relays["ZERO_G_FLOAT_INDICATOR"] = True
+                
+                # Communicate separation directly to the active flight director
+                if self.flight_director:
+                    self.flight_director.capsule_separated = True
+                    self.flight_director.relays["STAGING_EXPLOSIVE_BOLTS"] = True
+                    print("-> Success: Core flight director informed. Spacecraft is now floating free.")
+            else:
+                print("-> Verification Failure: Toggle synchronization mismatch out of acceptable window.")
+
+    def reset_retro_panel_safeties(self):
+        """Resets panel switches to default tracking states."""
+        self.retro_man_depressed = False
+        self.retro_seq_1_active = False
+        self.retro_seq_2_active = False
+        print("[COCKPIT CONTROL] Left panel retro safeties returned to baseline standby.")
+
+
 # Example operational loop simulating cockpit panel interaction
 if __name__ == "__main__":
     panel = CockpitSwitchInterface()
